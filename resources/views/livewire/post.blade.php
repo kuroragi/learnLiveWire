@@ -4,22 +4,35 @@
     </div>
 
     <div class="card-body">
-        <button class="btn btn-sm btn-primary mb-3" data-toggle="modal" data-target="#modal-xl">Tambah Post</button>
+        <button class="btn btn-sm btn-outline-primary mb-3" data-toggle="modal" data-target="#createModal"><i
+                class="fa fa-plus">Tambah
+                Post </i></button>
 
         <table id="example1" class="table table-bordered table-striped">
             <thead>
                 <tr>
+                    <th>No.</th>
                     <th>Title</th>
-                    <th>Browser</th>
+                    <th>Content</th>
                     <th>image(s)</th>
+                    <th>Content</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($posts as $post)
                     <tr>
+                        <td>{{ $loop->iteration }}</td>
                         <td>{{ $post->content_title }}</td>
                         <td>{{ $post->content }}</td>
                         <td>{{ $post->header_image }}</td>
+                        <td>
+                            <button wire:click='EditPost({{ $post->id }})' class="btn btn-outline-warning btn-sm"
+                                title="Edit">Edit <i class="fa fa-edit"></i></button>
+                            <button class="btn btn-outline-info btn-sm" title="Detail">Detail <i
+                                    class="fa fa-search"></i></button>
+                            <button wire:click='DeletePost({{ $post->id }})' class="btn btn-outline-danger btn-sm"
+                                title="Detail">Hapus <i class="fa fa-trash"></i></button>
+                        </td>
                     </tr>
                 @endforeach
 
@@ -424,17 +437,17 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <th>Rendering engine</th>
-                    <th>Browser</th>
-                    <th>Platform(s)</th>
-                    <th>Engine version</th>
-                    <th>CSS grade</th>
+                    <th>No.</th>
+                    <th>Title</th>
+                    <th>Content</th>
+                    <th>Image(s)</th>
+                    <th>Actions</th>
                 </tr>
             </tfoot>
         </table>
     </div>
 
-    <div class="modal fade" id="modal-xl">
+    <div wire:ignore.self class="modal fade" id="createModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
@@ -444,10 +457,10 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form action="" wire:submit='CreatePost'>
+                    <form wire:submit='CreatePost'>
                         <div class="mb-3">
                             <label for="add_content_title" class="form-label">Title</label>
-                            <input wire:model='content-title' type="text" name="content_title" id="add_content_title"
+                            <input wire:model='content_title' type="text" name="content_title" id="add_content_title"
                                 class="form-control">
                         </div>
                         <div class="mb-3">
@@ -460,7 +473,47 @@
                             <input wire:model='header_image' type="text" name="header_image" id="add_header_image"
                                 class="form-control">
                         </div>
-                        <button class="btn btn-success w-100"><i class="fa fa-floppy-disk"></i> Simpan</button>
+                        <button type="submit" class="btn btn-success w-100"><i class="fa fa-floppy-disk"></i>
+                            Simpan</button>
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div wire:ignore.self class="modal fade" id="updateModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Extra Large Modal</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form wire:submit='UpdatePost'>
+                        <div class="mb-3">
+                            <label for="add_content_title" class="form-label">Title</label>
+                            <input wire:model='postId' type="hidden" name="postId">
+                            <input wire:model='content_title' type="text" name="content_title" id="add_content_title"
+                                class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="add_content" class="form-label">Content</label>
+                            <input wire:model='content' type="text" name="content" id="add_content"
+                                class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="add_header_image" class="form-label">Header Image</label>
+                            <input wire:model='header_image' type="text" name="header_image"
+                                id="add_header_image" class="form-control">
+                        </div>
+                        <button type="submit" class="btn btn-success w-100"><i class="fa fa-floppy-disk"></i>
+                            Simpan</button>
                     </form>
                 </div>
                 <div class="modal-footer justify-content-between">
@@ -471,3 +524,16 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+    <script>
+        Livewire.on('closeModal', () => {
+            $("#createModal").modal('hide');
+            $("#updateModal").modal('hide');
+        });
+
+        Livewire.on('editPost', () => {
+            $("#updateModal").modal('show');
+        })
+    </script>
+@endpush

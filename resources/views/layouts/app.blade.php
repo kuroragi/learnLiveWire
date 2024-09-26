@@ -20,6 +20,8 @@
     <link rel="stylesheet" href="/asstes/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
 
     <link rel="stylesheet" href="/asstes/plugins/toastr/toastr.min.css">
+    @livewireStyles
+    @stack('styles')
 </head>
 
 <body class="hold-transition sidebar-mini">
@@ -54,6 +56,14 @@
 
         </aside>
 
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <h5><i class="icon fas fa-check"></i> Alert!</h5>
+                {{ session('success') }}
+            </div>
+        @endif
+
     </div>
 
 
@@ -76,7 +86,7 @@
 
     <script src="/assets/dist/js/adminlte.min2167.js?v=3.2.0"></script>
 
-    <script src="/assets/dist/js/demo.js"></script>
+    {{-- <script src="/assets/dist/js/demo.js"></script> --}}
 
     <script src="/assets/plugins/sweetalert2/sweetalert2.min.js"></script>
 
@@ -236,6 +246,8 @@
             });
         });
     </script>
+    @livewireScripts
+    @stack('scripts')
 
     {{-- <script>
         $(function() {
