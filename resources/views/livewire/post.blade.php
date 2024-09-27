@@ -4,8 +4,8 @@
     </div>
 
     <div class="card-body">
-        <button class="btn btn-sm btn-outline-primary mb-3" data-toggle="modal" data-target="#createModal"><i
-                class="fa fa-plus">Tambah
+        <button class="btn btn-sm btn-outline-primary mb-3" data-toggle="modal" data-target="#postModal"
+            wire:click='ResetField'><i class="fa fa-plus">Tambah
                 Post </i></button>
 
         <table id="example1" class="table table-bordered table-striped">
@@ -27,7 +27,8 @@
                         <td>{{ $post->header_image }}</td>
                         <td>
                             <button wire:click='EditPost({{ $post->id }})' class="btn btn-outline-warning btn-sm"
-                                title="Edit">Edit <i class="fa fa-edit"></i></button>
+                                title="Edit" data-toggle="modal" data-target="#postModal">Edit <i
+                                    class="fa fa-edit"></i></button>
                             <button class="btn btn-outline-info btn-sm" title="Detail">Detail <i
                                     class="fa fa-search"></i></button>
                             <button wire:click='DeletePost({{ $post->id }})' class="btn btn-outline-danger btn-sm"
@@ -447,7 +448,7 @@
         </table>
     </div>
 
-    <div wire:ignore.self class="modal fade" id="createModal" tabindex="-1">
+    <div wire:ignore.self class="modal fade" id="postModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
@@ -457,20 +458,26 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form wire:submit='CreatePost'>
+                    <form wire:submit.prevent='savePost'>
                         <div class="mb-3">
-                            <label for="add_content_title" class="form-label">Title</label>
-                            <input wire:model='content_title' type="text" name="content_title" id="add_content_title"
+                            <label for="content_title" class="form-label">Title</label>
+                            <input wire:model='content_title' type="text" name="content_title" id="content_title"
                                 class="form-control">
+                            @error('content_title')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
+                        </div>
+                        <div class="mb-3" wire:ignore>
+                            <label for="content" class="form-label">Content</label>
+                            <input wire:model.lazy='content' type="hidden" name="content" id="content">
+                            <trix-editor input="content" id="trixEditor"></trix-editor>
+                            @error('content')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
                         </div>
                         <div class="mb-3">
-                            <label for="add_content" class="form-label">Content</label>
-                            <input wire:model='content' type="text" name="content" id="add_content"
-                                class="form-control">
-                        </div>
-                        <div class="mb-3">
-                            <label for="add_header_image" class="form-label">Header Image</label>
-                            <input wire:model='header_image' type="text" name="header_image" id="add_header_image"
+                            <label for="header_image" class="form-label">Header Image</label>
+                            <input wire:model='header_image' type="text" name="header_image" id="header_image"
                                 class="form-control">
                         </div>
                         <button type="submit" class="btn btn-success w-100"><i class="fa fa-floppy-disk"></i>
@@ -485,7 +492,7 @@
         </div>
     </div>
 
-    <div wire:ignore.self class="modal fade" id="updateModal" tabindex="-1">
+    {{-- <div wire:ignore.self class="modal fade" id="updateModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
@@ -498,19 +505,19 @@
                     <form wire:submit='UpdatePost'>
                         <div class="mb-3">
                             <label for="add_content_title" class="form-label">Title</label>
-                            <input wire:model='postId' type="hidden" name="postId">
-                            <input wire:model='content_title' type="text" name="content_title" id="add_content_title"
-                                class="form-control">
+                            <input wire:model='postId' type="hidden" name="postId" id="edit_postId">
+                            <input wire:model='content_title' type="text" name="content_title"
+                                id="edit_content_title" class="form-control">
                         </div>
                         <div class="mb-3">
-                            <label for="add_content" class="form-label">Content</label>
-                            <input wire:model='content' type="text" name="content" id="add_content"
-                                class="form-control">
+                            <label for="edit_content" class="form-label">Content</label>
+                            <input wire:model='content' type="hidden" name="content" id="edit_content">
+                            <trix-editor input="edit_content"></trix-editor>
                         </div>
                         <div class="mb-3">
-                            <label for="add_header_image" class="form-label">Header Image</label>
+                            <label for="edit_header_image" class="form-label">Header Image</label>
                             <input wire:model='header_image' type="text" name="header_image"
-                                id="add_header_image" class="form-control">
+                                id="edit_header_image" class="form-control">
                         </div>
                         <button type="submit" class="btn btn-success w-100"><i class="fa fa-floppy-disk"></i>
                             Simpan</button>
@@ -522,18 +529,102 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 </div>
 
 @push('scripts')
     <script>
         Livewire.on('closeModal', () => {
-            $("#createModal").modal('hide');
-            $("#updateModal").modal('hide');
+            $("#postModal").modal('hide');
         });
 
-        Livewire.on('editPost', () => {
-            $("#updateModal").modal('show');
-        })
+        Livewire.on('editModal', () => {
+            setTimeout(() => {
+                let trixEditor = $('#trixEditor');
+                let content = $('#content');
+
+                trixEditor.html(content.val());
+            }, 10);
+
+        });
+
+        // Mendengarkan event `trix-change` untuk sinkronisasi data Trix dengan Livewire
+        document.addEventListener('trix-change', function(e) {
+            @this.set('content', e.target.value);
+        });
+
+        document.addEventListener('trix-attachment-add', function(event) {
+
+            if (event.attachment.file) {
+                uploadImage(event.attachment);
+            }
+        });
+
+        function uploadImage(attachment) {
+
+            if (attachment.file) {
+                var formData = new FormData();
+                formData.append('attachment', attachment.file);
+
+                $.ajax({
+                    url: '/attachments', // Endpoint for handling file upload
+                    type: 'POST',
+                    data: formData, // Mengirim FormData dengan file
+                    contentType: false, // Ini penting agar FormData dapat mengelola tipe file
+                    processData: false, // Mencegah jQuery mengubah data menjadi string
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}' // CSRF token untuk keamanan
+                    },
+                    success: function(response) {
+                        console.log(response);
+
+                        // if (response.url) {
+                        //     // Set the uploaded file's URL to Trix editor
+                        //     attachment.setAttributes({
+                        //         url: response.url,
+                        //         href: response.url
+                        //     });
+                        // }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Upload error:', error); // Menangani error upload
+                    }
+                });
+
+                // fetch('/attachment', {
+                //         method: 'POST',
+                //         body: form,
+                //         header: {
+                //             'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                //         }
+                //     })
+                //     .then(response => response.json())
+                //     .then(result => {
+                //         console.log(result);
+
+                //         if (result.url) {
+                //             attachment.setAttributes({
+                //                 url: result.url,
+                //                 href: result.url
+                //             });
+                //         }
+                //     })
+                //     .catch(error => {
+                //         console.error('upload error.', error);
+                //     })
+            }
+            // let file = attachment.file;
+            // console.log('Starting upload...'); // Tambahkan ini untuk melihat apakah upload dimulai
+
+            // @this.upload('content', file, (uploadedURL) => {
+            //     console.log('Upload success:', uploadedURL); // Log jika berhasil
+            //     attachment.setAttributes({
+            //         url: uploadedURL,
+            //         href: uploadedURL
+            //     });
+            // }, (error) => {
+            //     console.log('Upload failed:', error); // Log jika gagal
+            // });
+        }
     </script>
 @endpush

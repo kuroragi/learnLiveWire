@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TrixAttachmentController;
 use App\Livewire\Counter;
 use App\Livewire\Post;
 use Illuminate\Support\Facades\Route;
@@ -22,3 +23,5 @@ Route::get('/', function () {
 Route::get('/post', Post::class);
 
 Route::get('/counter', Counter::class);
+
+Route::post('/attachment', [TrixAttachmentController::class, 'store']);

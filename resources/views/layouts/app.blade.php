@@ -20,6 +20,11 @@
     <link rel="stylesheet" href="/asstes/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
 
     <link rel="stylesheet" href="/asstes/plugins/toastr/toastr.min.css">
+
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/trix@2.0.8/dist/trix.css">
+
+    <script type="text/javascript" src="https://unpkg.com/trix@2.0.8/dist/trix.umd.min.js"></script>
+
     @livewireStyles
     @stack('styles')
 </head>
