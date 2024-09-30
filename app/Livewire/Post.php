@@ -3,13 +3,21 @@
 namespace App\Livewire;
 
 use App\Models\Posts;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
+use Livewire\TemporaryUpdaloadedFile;
 
+#[Title('Post')]
+#[Layout('layouts.app', ['page_title' => 'Data Post'])]
 class Post extends Component
 {
     use WithFileUploads;
+
+    public $title = 'Post';
 
     public $page_title = 'DataTables Post';
 
@@ -21,30 +29,25 @@ class Post extends Component
     #[Validate('required')]
     public $content;
 
-    // #[Validate('image|max:12040')]
+    #[Validate('image|max:12040')]
     public $header_image;
 
     public $isEditMode = false;
 
-    public $listener = ['closeModal', 'editPost'];
-
-    public function mount($id = null){
-        if($id){
-            $post = Posts::find($id);
-            $this->postId = $post->id;
-            $this->content_title = $post->content_title;
-            $this->content = $post->content;
-            $this->header_image = $post->header_image;
-        }
-    }
+    public $listener = ['resetField', 'closeModal', 'editPost'];
 
     public function savePost(){
         $validated = $this->validate();
 
+        if($this->header_image instanceof TemporaryUploadedFile){
+            $name = $this->header_image->getClientOriginalName();
+            $path = $this->header_image->storeAs('header_image', $name, 'public');
+        }
+
         $data = [
             'content_title' => $validated['content_title'],
             'content' => $validated['content'],
-            'header_image' => $this->header_image,
+            'header_image' => $path,
         ];
 
         $createUpdatePost = Posts::updateOrCreate(
@@ -60,38 +63,6 @@ class Post extends Component
         }
     }
 
-    public function CreatePost(){
-        $validated = $this->validate();
-
-        $data = [
-            'content_title' => $validated['content_title'],
-            'content' => $validated['content'],
-            'header_image' => $this->header_image,
-        ];
-
-        $createPost = Posts::create($data);
-
-        if($createPost){
-            $this->ResetField();
-            session()->flash('success', 'Berhasil Tambah Post.');
-            $this->dispatch('closeModal');
-        }
-
-    }
-
-    public function updatedContent($value)
-    {
-        $this->content = $value;
-    }
-
-    public function uploadImage($file)
-    {
-        dd('halo');
-        $path = $file->store('uploads', 'public');
-    
-        return asset('storage/' . $path);
-    }
-
     public function EditPost($id){
         $post = Posts::findOrFail($id);
         
@@ -105,25 +76,6 @@ class Post extends Component
         }
     }
 
-    public function UpdatePost(){
-        $validated = $this->validate();
-
-        $data = [
-            'content_title' => $validated['content_title'],
-            'content' => $validated['content'],
-            'header_image' => $this->header_image,
-        ];
-
-        $updatePost = Posts::findOrFail($this->postId)->update($data);
-
-        if($updatePost){
-            $this->ResetField();
-            session()->flash('success', 'Berhasil Tambah Post.');
-            $this->dispatch('closeModal');
-        }
-
-    }
-
     public function DeletePost($id){
         if($id){
             Posts::destroy($id);
@@ -133,6 +85,7 @@ class Post extends Component
     public function ResetField(){
         $this->reset(['postId', 'content_title', 'content', 'header_image']);
         $this->isEditMode = false;
+        $this->dispatch('resetField');
     }
 
     public function render()
@@ -141,7 +94,8 @@ class Post extends Component
         $posts = Posts::orderBy('created_at', 'Desc')->get();
         // dd($posts);
         return view('livewire.post', [
-            'posts' => $posts
+            'posts' => $posts,
+            'page_title' => 'Data Post',
         ]);
     }
 }

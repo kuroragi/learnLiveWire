@@ -23,8 +23,9 @@
                     <tr>
                         <td>{{ $loop->iteration }}</td>
                         <td>{{ $post->content_title }}</td>
-                        <td>{{ $post->content }}</td>
-                        <td>{{ $post->header_image }}</td>
+                        <td class="text-wrap w-25">{!! substr($post->content, 0, 50) !!}</td>
+                        <td><img src="/storage/{{ $post->header_image }}" width="100" height="100"
+                                style="object-fit:contain;" alt=""></td>
                         <td>
                             <button wire:click='EditPost({{ $post->id }})' class="btn btn-outline-warning btn-sm"
                                 title="Edit" data-toggle="modal" data-target="#postModal">Edit <i
@@ -459,29 +460,50 @@
                 </div>
                 <div class="modal-body">
                     <form wire:submit.prevent='savePost'>
-                        <div class="mb-3">
-                            <label for="content_title" class="form-label">Title</label>
-                            <input wire:model='content_title' type="text" name="content_title" id="content_title"
-                                class="form-control">
-                            @error('content_title')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-                        <div class="mb-3" wire:ignore>
-                            <label for="content" class="form-label">Content</label>
-                            <input wire:model.lazy='content' type="hidden" name="content" id="content">
-                            <trix-editor input="content" id="trixEditor"></trix-editor>
-                            @error('content')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-                        <div class="mb-3">
-                            <label for="header_image" class="form-label">Header Image</label>
-                            <input wire:model='header_image' type="text" name="header_image" id="header_image"
-                                class="form-control">
-                        </div>
-                        <button type="submit" class="btn btn-success w-100"><i class="fa fa-floppy-disk"></i>
-                            Simpan</button>
+                        <div x-data="{ uploading: false, progress: 0 }" x-on:livewire-upload-start="uploading = true"
+                            x-on:livewire-upload-finish="uploading = false"
+                            x-on:livewire-upload-cancel="uploading = false"
+                            x-on:livewire-upload-error="uploading = false"
+                            x-on:livewire-upload-progress="progress = $event.detail.progress">
+                            <div class="mb-3">
+                                <label for="content_title" class="form-label">Title</label>
+                                <input wire:model='content_title' type="text" name="content_title" id="content_title"
+                                    class="form-control">
+                                @error('content_title')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+                            </div>
+                            <div class="mb-3" wire:ignore>
+                                <label for="content" class="form-label">Content</label>
+                                <input wire:model.lazy='content' type="hidden" name="content" id="content">
+                                <trix-editor input="content" id="trixEditor"></trix-editor>
+                                @error('content')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label for="header_image" class="form-label">Header Image</label>
+                                <div class="mb-2">
+                                    @if ($header_image instanceof \Livewire\TemporaryUploadedFile)
+                                        <img src="{{ $header_image->temporaryUrl() }}" width="250" height="250"
+                                            style="object-fit:contain;" alt="">
+                                    @elseif($header_image)
+                                        <img src="/storage/{{ $header_image }}" width="250" height="250"
+                                            style="object-fit:contain;" alt="">
+                                    @endif
+                                </div>
+                                <div class="input-group">
+                                    <input wire:model='header_image' type="file" name="header_image"
+                                        id="header_image" class="custom-file-input">
+                                    <label for="" class="custom-file-label">Browse</label>
+                                </div>
+                                <!-- Progress Bar -->
+                                <div x-show="uploading">
+                                    <progress max="100" x-bind:value="progress"></progress>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100"><i class="fa fa-floppy-disk"></i>
+                                Simpan</button>
                     </form>
                 </div>
                 <div class="modal-footer justify-content-between">
@@ -548,6 +570,10 @@
 
         });
 
+        Livewire.on('resetField', () => {
+            $("#trixEditor").html("");
+        })
+
         // Mendengarkan event `trix-change` untuk sinkronisasi data Trix dengan Livewire
         document.addEventListener('trix-change', function(e) {
             @this.set('content', e.target.value);
@@ -559,6 +585,10 @@
                 uploadImage(event.attachment);
             }
         });
+
+        document.addEventListener('trix-attachment-remove', function(event) {
+            removeImage(event.attachment);
+        })
 
         function uploadImage(attachment) {
 
@@ -576,55 +606,46 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}' // CSRF token untuk keamanan
                     },
                     success: function(response) {
-                        console.log(response);
 
-                        // if (response.url) {
-                        //     // Set the uploaded file's URL to Trix editor
-                        //     attachment.setAttributes({
-                        //         url: response.url,
-                        //         href: response.url
-                        //     });
-                        // }
+                        if (response.url) {
+                            // Set the uploaded file's URL to Trix editor
+                            attachment.setAttributes({
+                                url: response.url,
+                                href: response.url
+                            });
+                        }
                     },
                     error: function(xhr, status, error) {
                         console.error('Upload error:', error); // Menangani error upload
                     }
                 });
-
-                // fetch('/attachment', {
-                //         method: 'POST',
-                //         body: form,
-                //         header: {
-                //             'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                //         }
-                //     })
-                //     .then(response => response.json())
-                //     .then(result => {
-                //         console.log(result);
-
-                //         if (result.url) {
-                //             attachment.setAttributes({
-                //                 url: result.url,
-                //                 href: result.url
-                //             });
-                //         }
-                //     })
-                //     .catch(error => {
-                //         console.error('upload error.', error);
-                //     })
             }
-            // let file = attachment.file;
-            // console.log('Starting upload...'); // Tambahkan ini untuk melihat apakah upload dimulai
+        }
 
-            // @this.upload('content', file, (uploadedURL) => {
-            //     console.log('Upload success:', uploadedURL); // Log jika berhasil
-            //     attachment.setAttributes({
-            //         url: uploadedURL,
-            //         href: uploadedURL
-            //     });
-            // }, (error) => {
-            //     console.log('Upload failed:', error); // Log jika gagal
-            // });
+        function removeImage(attachment) {
+            if (attachment.getAttribute('url')) {
+                let fileUrl = attachment.getAttribute('url');
+
+                $.ajax({
+                    type: "POST",
+                    url: "/attachments/delete",
+                    data: {
+                        file_url: fileUrl
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}' // CSRF token untuk keamanan
+                    },
+                    success: function(response) {
+                        console.log(response);
+
+                        console.log('Data removed Successfully');
+
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Remove error:', error); // Menangani error upload
+                    }
+                });
+            }
         }
     </script>
 @endpush

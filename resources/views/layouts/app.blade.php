@@ -97,6 +97,8 @@
 
     <script src="/assets/plugins/toastr/toastr.min.js"></script>
 
+    <script src="/assets/plugins/bs-custom-file-input/bs-custom-file-input.min.js"></script>
+
     <script>
         $(function() {
             var Toast = Swal.mixin({
