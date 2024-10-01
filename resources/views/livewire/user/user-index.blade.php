@@ -87,9 +87,11 @@
     </div>
 </div>
 
-@push('script')
+@push('scripts')
     <script>
         Livewire.on('closeModal', () => {
+            console.log('closed');
+
             $("#userModal").modal("hide");
         })
     </script>

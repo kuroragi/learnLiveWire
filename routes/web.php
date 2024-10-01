@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\TrixAttachmentController;
 use App\Livewire\Counter;
+use App\Livewire\Login;
 use App\Livewire\Post;
 use App\Livewire\User\UserIndex;
 use Illuminate\Support\Facades\Route;
@@ -17,9 +18,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', Login::class);
 
 Route::get('/user', UserIndex::class);
 
