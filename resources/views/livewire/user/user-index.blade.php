@@ -1,4 +1,7 @@
 <div>
+    <p class="alert alert-warning" wire:offline>
+        Whoops, your device has lost connection. The web page you are viewing is offline.
+    </p>
     <!-- Table Start -->
     <div class="card">
         <div class="card-header">
@@ -8,7 +11,7 @@
         <div class="card-body">
             <div wire:click='addUser' class="btn btn-outline-primary btn-sm mb-3" data-toggle="modal"
                 data-target="#userModal">
-                <i class="fa fa-plus"> Tambah User</i>
+                <i class="fas fa-plus"></i> Tambah User
             </div>
 
             <table class="table table-bordered table-striped">
@@ -23,10 +26,10 @@
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $user->name }}</td>
-                            <td></td>
+                            <td>{{ $user->getRole->name }}</td>
                             <td>
-                                <button wire:click='editUser({{ $user->id }})' class="btn btn-outline-warning btn-sm"
-                                    data-toggle="modal" data-target="#userModal">
+                                <button wire:click='editUser({{ $user->id }})'
+                                    class="btn btn-outline-warning btn-sm" data-toggle="modal" data-target="#userModal">
                                     <i class="fa fa-edit"></i> Edit
                                 </button>
                                 <button wire:click='deleteUser({{ $user->id }})'
@@ -69,6 +72,15 @@
                             <input wire:model='email' type="email" class="form-control" id="email">
                         </div>
                         <div class="mb-3">
+                            <label for="role" class="form-label">Role</label>
+                            <select wire:model='role' name="role" id="role" class="form-control" id="role">
+                                <option value="">-- Pilih Role --</option>
+                                @foreach ($roles as $role)
+                                    <option value="{{ $role->slug }}">{{ $role->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
                             <input wire:model='password' type="password" class="form-control" id="password">
                         </div>
@@ -90,8 +102,9 @@
 @push('scripts')
     <script>
         Livewire.on('closeModal', () => {
-            console.log('closed');
-
+            $("#userModal").modal({
+                backdrop: true
+            });
             $("#userModal").modal("hide");
         })
     </script>

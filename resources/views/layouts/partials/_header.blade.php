@@ -128,4 +128,9 @@
             <i class="fas fa-th-large"></i>
         </a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/logout" role="button">
+            <i class="fas fa-power-off text-danger"></i> Keluar
+        </a>
+    </li>
 </ul>

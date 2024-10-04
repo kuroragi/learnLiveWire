@@ -2,6 +2,7 @@
 
 namespace App\Livewire\User;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Attributes\Layout;
@@ -15,11 +16,14 @@ class UserIndex extends Component
 {
     public $modalTitle;
     public $isEditMode = false;
+    public $users;
+    public $roles;
     public $user;
 
     public $userId;
     #[Validate('required|min:3')]
     public $name;
+    public $role;
     #[Validate('required|email')]
     public $email;
     #[Validate('nullable|min:4')]
@@ -27,10 +31,9 @@ class UserIndex extends Component
 
     public $listener = ['resetField', 'closeModal', 'editUser'];
 
-    public function mount($userId = null){
-        if($userId){
-            $this->editUser($userId);
-        }
+    public function mount(){
+        $this->users = User::with(['getRole'])->orderBy('name')->get();
+        $this->roles = Role::orderBy('name')->get();
     }
 
     public function addUser(){
@@ -44,6 +47,7 @@ class UserIndex extends Component
         if($user){
             $this->userId = $user->id;
             $this->name = $user->name;
+            $this->role = $user->role;
             $this->email = $user->email;
             $this->isEditMode = true;
             $this->dispatch('editUser');
@@ -58,6 +62,7 @@ class UserIndex extends Component
         $data = [
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'role' => $this->role,
             'password' => $passwordHash ?? $this->user['password'],
         ];
         
@@ -66,8 +71,9 @@ class UserIndex extends Component
         session()->flash('message', $this->isEditMode ? 'Post berhasil diupdate' : 'Post Berhasil ditamabah');
         
         if($createUpdatePost){
-            $this->dispatch('closeModal');
+            $this->users = User::orderBy('name', 'Desc')->get();
             $this->ResetField();
+            $this->dispatch('closeModal');
         }
     }
 
@@ -78,16 +84,12 @@ class UserIndex extends Component
     }
 
     public function resetField(){
-        $this->reset(['name', 'email', 'password']);
+        $this->reset(['name', 'email', 'role', 'password']);
         $this->isEditMode = false;
-        $this->dispatch('resetField');
     }
 
     public function render()
     {
-        $users = User::orderBy('name', 'Desc')->get();
-        return view('livewire.user.user-index', [
-            'users' => $users,
-        ]);
+        return view('livewire.user.user-index');
     }
 }

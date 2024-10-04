@@ -9,7 +9,7 @@
 
     <link rel="stylesheet" href="/assets/fonts/css24b9.css?family=Source+Sans+Pro:300,400,400i,700&amp;display=fallback">
 
-    <link rel="stylesheet" href="/assets/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
     <link rel="stylesheet" href="/assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="/assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
@@ -17,13 +17,29 @@
 
     <link rel="stylesheet" href="/assets/dist/css/adminlte.min2167.css?v=3.2.0">
 
-    <link rel="stylesheet" href="/asstes/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+    <link rel="stylesheet" href="/assets/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
 
-    <link rel="stylesheet" href="/asstes/plugins/toastr/toastr.min.css">
+    <link rel="stylesheet" href="/assets/plugins/toastr/toastr.min.css">
 
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/trix@2.0.8/dist/trix.css">
 
     <script type="text/javascript" src="https://unpkg.com/trix@2.0.8/dist/trix.umd.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="/assets/icons/ionicons.min.css" />
+
+    <link rel="stylesheet" href="/assets/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" />
+
+    <link rel="stylesheet" href="/assets/plugins/icheck-bootstrap/icheck-bootstrap.min.css" />
+
+    <link rel="stylesheet" href="/assets/plugins/jqvmap/jqvmap.min.css" />
+
+    <link rel="stylesheet" href="/assets/plugins/overlayScrollbars/css/OverlayScrollbars.min.css" />
+
+    <link rel="stylesheet" href="/assets/plugins/daterangepicker/daterangepicker.css" />
+
+    <link rel="stylesheet" href="/assets/plugins/summernote/summernote-bs4.min.css" />
 
     @livewireStyles
     @stack('styles')
@@ -47,6 +63,7 @@
                     <div class="row">
                         <div class="col-12">
                             {{ $slot }}
+                            {{-- @yield('content') --}}
                         </div>
                     </div>
                 </div>
@@ -88,6 +105,7 @@
     <script src="/assets/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
     <script src="/assets/plugins/datatables-buttons/js/buttons.print.min.js"></script>
     <script src="/assets/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/js/all.min.js"></script>
 
     <script src="/assets/dist/js/adminlte.min2167.js?v=3.2.0"></script>
 
@@ -98,6 +116,39 @@
     <script src="/assets/plugins/toastr/toastr.min.js"></script>
 
     <script src="/assets/plugins/bs-custom-file-input/bs-custom-file-input.min.js"></script>
+
+
+    <script src="/assets/plugins/jquery/jquery.min.js"></script>
+
+    <script src="/assets/plugins/jquery-ui/jquery-ui.min.js"></script>
+
+    <script>
+        $.widget.bridge("uibutton", $.ui.button);
+    </script>
+
+    <script src="/assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <script src="/assets/plugins/chart.js/Chart.min.js"></script>
+
+    <script src="/assets/plugins/sparklines/sparkline.js"></script>
+
+    <script src="/assets/plugins/jqvmap/jquery.vmap.min.js"></script>
+    <script src="/assets/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
+
+    <script src="/assets/plugins/jquery-knob/jquery.knob.min.js"></script>
+
+    <script src="/assets/plugins/moment/moment.min.js"></script>
+    <script src="/assets/plugins/daterangepicker/daterangepicker.js"></script>
+
+    <script src="/assets/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+
+    <script src="/assets/plugins/summernote/summernote-bs4.min.js"></script>
+
+    <script src="/assets/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+
+    <script src="/assets/dist/js/adminlte2167.js?v=3.2.0"></script>
+
+    <script src="/assets/dist/js/pages/dashboard.js"></script>
 
     <script>
         $(function() {
@@ -207,7 +258,7 @@
                     body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.',
                     title: 'Toast Title',
                     subtitle: 'Subtitle',
-                    image: '../../dist/img/user3-128x128.jpg',
+                    image: '/assets/dist/img/user3-128x128.jpg',
                     imageAlt: 'User Picture',
                 })
             });

@@ -5,17 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Posts extends Model
+class PostsAttachment extends Model
 {
     use HasFactory;
 
     protected $guarded = 'id';
 
     protected $fillable = [
-        'content_title', 'content', 'header_image' 
+        'id_post', 'attachment'
     ];
-
-    public function comments(){
-        $this->hasMany(PostComment::class, 'di_post', 'id');
-    }
 }

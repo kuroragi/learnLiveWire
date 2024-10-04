@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Posts;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Validate;
@@ -20,7 +21,7 @@ class Post extends Component
     public $title = 'Post';
 
     public $page_title = 'DataTables Post';
-
+    public $posts;
     public $postId;
 
     #[Validate('required|min:3')]
@@ -29,19 +30,32 @@ class Post extends Component
     #[Validate('required')]
     public $content;
 
-    #[Validate('image|max:12040')]
+    #[Validate('nullable|image|max:12040')]
     public $header_image;
 
     public $isEditMode = false;
 
     public $listener = ['resetField', 'closeModal', 'editPost'];
 
-    public function savePost(){
-        $validated = $this->validate();
+    public function mount($id = null){
+        $this->posts = Posts::orderBy('created_at', 'Desc')->get();
+    }
 
-        if($this->header_image instanceof TemporaryUploadedFile){
-            $name = $this->header_image->getClientOriginalName();
-            $path = $this->header_image->storeAs('header_image', $name, 'public');
+    public function savePost(){
+        $validated = $this->validate([
+            'content_title' => 'required|min:3',
+            'content' => 'required',
+        ]);
+
+        if(is_string($this->header_image)){
+            $path = $this->header_image;
+        }else{
+            $validated['header_image'] = 'image|max:12040';
+        
+            if($this->header_image instanceof TemporaryUploadedFile){
+                $name = $this->header_image->getClientOriginalName();
+                $path = $this->header_image->storeAs('header_image', $name, 'public');
+            }
         }
 
         $data = [
@@ -78,7 +92,17 @@ class Post extends Component
 
     public function DeletePost($id){
         if($id){
-            Posts::destroy($id);
+            $post = Posts::findOrFail($id);
+
+            if($post->header_image && Storage::disk('public')->exists($post->header_image)){
+                Storage::disk('public')->delete($post->header_image);
+            }
+
+            $post->delete();
+
+            session()->flash('message', 'Post Berhasil di hapus');
+
+            $this->posts = Posts::orderBy('created_at', 'Desc')->get();
         }
     }
 
@@ -91,11 +115,7 @@ class Post extends Component
     public function render()
     {
 
-        $posts = Posts::orderBy('created_at', 'Desc')->get();
-        // dd($posts);
-        return view('livewire.post', [
-            'posts' => $posts,
-            'page_title' => 'Data Post',
-        ]);
+        // dd($this->posts);
+        return view('livewire.post');
     }
 }
