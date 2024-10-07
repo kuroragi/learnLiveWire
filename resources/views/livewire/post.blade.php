@@ -46,7 +46,7 @@
         </table>
     </div>
 
-    <div wire:ignore.self class="modal fade" id="postModal" tabindex="-1">
+    <div wire:ignore.self class="modal fade" id="postModal">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
@@ -56,7 +56,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form wire:submit.prevent='savePost'>
+                    <form>
                         <div x-data="{ uploading: false, progress: 0 }" x-on:livewire-upload-start="uploading = true"
                             x-on:livewire-upload-finish="uploading = false"
                             x-on:livewire-upload-cancel="uploading = false"
@@ -72,7 +72,7 @@
                             </div>
                             <div class="mb-3" wire:ignore>
                                 <label for="content" class="form-label">Content</label>
-                                <input wire:model.lazy='content' type="hidden" name="content" id="content">
+                                <input wire:model.lazy='content' type="text" name="content" id="content">
                                 <trix-editor input="content" id="trixEditor"></trix-editor>
                                 @error('content')
                                     <small class="text-danger">{{ $message }}</small>
@@ -102,7 +102,8 @@
                                     <progress max="100" x-bind:value="progress"></progress>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-success w-100"><i class="fa fa-floppy-disk"></i>
+                            <button type="submit" class="btn btn-success w-100" wire:click.prevent='savePost'
+                                data-dismiss="modal"><i class="fa fa-floppy-disk"></i>
                                 Simpan</button>
                     </form>
                 </div>
@@ -156,8 +157,19 @@
 
 @push('scripts')
     <script>
+        let isModalClosed = false;
         Livewire.on('closeModal', () => {
-            $("#postModal").modal('hide');
+            isModalClosed = true;
+            setTimeout(() => {
+                isModalClosed = false;
+            }, 1000);
+            // $("#postModal").modal('hide');
+
+            // setTimeout(() => {
+            //     $(".modal-backdrop").remove();
+            //     $("body").removeClass('modal-open');
+            //     $("body").css("padding-right", "");
+            // }, 1000);
         });
 
         Livewire.on('editModal', () => {
@@ -166,13 +178,33 @@
                 let content = $('#content');
 
                 trixEditor.html(content.val());
-            }, 10);
+            }, 100);
 
         });
 
         Livewire.on('resetField', () => {
             $("#trixEditor").html("");
         })
+
+        // Livewire.on('editAttachment', () => {
+        //     let editor = $("trix-editor");
+        //     let img = editor.find("img");
+
+        //     $.each(img, function(index, value) {
+        //         value.classList.add("w-100", "px-5");
+        //         value.style.objectFit = 'contain';
+        //     });
+
+
+        //     // let figure = $(img).closest('a');
+        //     // if (figure) {
+
+        //     //     let figcaption = figure[0].querySelector('figcaption');
+        //     //     if (figcaption) {
+        //     //         $(figcaption).remove();
+        //     //     }
+        //     // }
+        // })
 
         // Mendengarkan event `trix-change` untuk sinkronisasi data Trix dengan Livewire
         document.addEventListener('trix-change', function(e) {
@@ -187,7 +219,9 @@
         });
 
         document.addEventListener('trix-attachment-remove', function(event) {
-            removeImage(event.attachment);
+            if (isModalClosed = false) {
+                removeImage(event.attachment);
+            }
         })
 
         function uploadImage(attachment) {
@@ -214,35 +248,15 @@
                                 href: response.url
                             });
 
-                            console.log('url', response.url);
+                            // Membuat elemen gambar dengan class dan style
+                            // Temukan elemen gambar setelah berhasil diupload
+                            const imgElements = document.querySelectorAll('trix-editor img[src="' + response
+                                .url + '"]');
 
-
-                            setTimeout(() => {
-                                let editor = document.querySelector("trix-editor");
-                                console.log(editor);
-                                let img = editor.querySelector(`img[src='${response.url}']`);
-
-                                if (img) {
-                                    console.log('image found', img);
-
-                                    img.classList.add("w-100", "px-5");
-                                    img.style.objectFit = "contain";
-
-                                }
-
-                                let figure = $(img).closest('a');
-                                if (figure) {
-
-                                    let figcaption = figure[0].querySelector('figcaption');
-                                    if (figcaption) {
-                                        $(figcaption).remove();
-                                    }
-                                }
-
-                            }, 1000)
-
-
-
+                            imgElements.forEach(imgElement => {
+                                imgElement.classList.add('w-100', 'px-5'); // Tambahkan class
+                                imgElement.style.objectFit = 'contain'; // Tambahkan style
+                            });
                         }
                     },
                     error: function(xhr, status, error) {

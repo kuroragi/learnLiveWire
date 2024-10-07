@@ -35,13 +35,15 @@ class Post extends Component
 
     public $isEditMode = false;
 
-    public $listener = ['resetField', 'closeModal', 'editPost'];
+    public $listener = ['editAttachment', 'resetField', 'closeModal', 'editPost'];
 
     public function mount($id = null){
         $this->posts = Posts::orderBy('created_at', 'Desc')->get();
     }
 
     public function savePost(){
+        // $this->dispatch('editAttachment');
+
         $validated = $this->validate([
             'content_title' => 'required|min:3',
             'content' => 'required',
@@ -58,9 +60,24 @@ class Post extends Component
             }
         }
 
+        // Hapus seluruh tag <figcaption> beserta isinya
+        $contentWithoutFigcaption = preg_replace('/<figcaption[^>]*>.*?<\/figcaption>/is', '', $this->content);
+        
+        // Hapus atribut width dari tag <img>
+        $contentWithoutWidth = preg_replace('/<img([^>]*?)\swidth="[^"]*"([^>]*)>/i', '<img$1$3>', $contentWithoutFigcaption);
+
+        // Hapus atribut height dari tag <img>
+        $contentWithoutDimensions = preg_replace('/<img([^>]*?)\sheight="[^"]*"([^>]*)>/i', '<img$1$3>', $contentWithoutWidth);
+
+        $modifiedContent = preg_replace(
+            '/<img([^>]*)>/',
+            '<img$1 class="w-100 py-3 px-5" style="object-fit: contain;" />',
+            $contentWithoutDimensions
+        );
+
         $data = [
             'content_title' => $validated['content_title'],
-            'content' => $validated['content'],
+            'content' => $modifiedContent,
             'header_image' => $path,
         ];
 
