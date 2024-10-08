@@ -5,18 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Role extends Model
+class PostCategory extends Model
 {
-    use HasFactory;
-
-    // protected $guarded = 'id';
-
+    // use HasFactory;
     public function getRouteKeyName()
     {
         return 'slug';
     }
 
-    protected $fillable = [
-        'name', 'slug'
-    ];
+    public function posts(){
+        $this->hasMany(posts::class, 'category', 'slug');
+    }
 }

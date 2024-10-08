@@ -7,6 +7,7 @@ use App\Livewire\Counter;
 use App\Livewire\Dashboard;
 use App\Livewire\Login;
 use App\Livewire\Post;
+use App\Livewire\Post\PostCategory;
 use App\Livewire\Post\PostDetail;
 use App\Livewire\Role;
 use App\Livewire\User\UserIndex;
@@ -30,6 +31,8 @@ Route::get('dashboard', Dashboard::class);
 Route::get('/role', Role::class);
 
 Route::get('/user', UserIndex::class);
+
+Route::get('/post-category', PostCategory::class);
 
 Route::get('/post', Post::class);
 

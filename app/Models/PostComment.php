@@ -9,7 +9,7 @@ class PostComment extends Model
 {
     use HasFactory;
 
-    protected $guarded = 'id';
+    // protected $guarded = 'id';
 
     protected $fillable = [
         'id_post', 'body'
